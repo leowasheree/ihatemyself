@@ -268,4 +268,4 @@ if __name__ == "__main__":
             write_permission_granted()
             bypassuac()
         else:
-            os.system("start https://github.com/SH1NSETSU")
+            os.system("start https://github.com/d1gitalmemories")
